@@ -2,6 +2,7 @@
 import mysql.connector
 
 def stream_users_in_batches(batch_size):
+    """Yield lists of rows (batches) from user_data."""
     conn = mysql.connector.connect(
         host="localhost",
         user="root",
@@ -13,7 +14,7 @@ def stream_users_in_batches(batch_size):
     cursor.execute("SELECT * FROM user_data;")
 
     batch = []
-    for row in cursor:
+    for row in cursor:          # loop 1
         batch.append(row)
         if len(batch) == batch_size:
             yield batch
@@ -27,7 +28,11 @@ def stream_users_in_batches(batch_size):
 
 
 def batch_processing(batch_size):
-    for batch in stream_users_in_batches(batch_size):
-        for user in batch:
+    """
+    Generator that yields users older than 25 from the DB in batches.
+    Use like: for user in batch_processing(50): print(user)
+    """
+    for batch in stream_users_in_batches(batch_size):  # loop 2
+        for user in batch:                             # loop 3
             if user['age'] > 25:
-                print(user)
+                yield user
