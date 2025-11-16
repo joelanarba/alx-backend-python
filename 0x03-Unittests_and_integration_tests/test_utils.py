@@ -10,12 +10,9 @@ from utils import get_json
 from unittest.mock import patch
 from utils import memoize
 
-
-
 sys.path.insert(0, os.path.abspath(".."))
 
 from utils import access_nested_map
-
 
 class TestAccessNestedMap(unittest.TestCase):
     """Test class for utils.access_nested_map"""
@@ -39,10 +36,8 @@ class TestAccessNestedMap(unittest.TestCase):
             access_nested_map(nested_map, path)
         self.assertEqual(str(context.exception), f"'{missing_key}'")
 
-
 if __name__ == "__main__":
     unittest.main()
-    
 class TestGetJson(unittest.TestCase):
     """Test class for utils.get_json"""
 
@@ -66,7 +61,6 @@ class TestGetJson(unittest.TestCase):
 
             # Test that the function output equals the payload
             self.assertEqual(result, test_payload)
-
 class TestMemoize(unittest.TestCase):
     """Test class for utils.memoize decorator"""
 
