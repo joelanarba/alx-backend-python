@@ -7,7 +7,7 @@ import unittest
 from unittest.mock import patch, Mock
 from parameterized import parameterized
 
-# Add parent folder to path before importing local modules
+# Add parent folder to path
 sys.path.insert(0, os.path.abspath(".."))
 
 from utils import access_nested_map, get_json, memoize
@@ -44,7 +44,8 @@ class TestGetJson(unittest.TestCase):
         ("http://holberton.io", {"payload": False})
     ])
     def test_get_json(self, test_url, test_payload):
-        """Test that get_json returns the expected payload with a mocked get."""
+        """Test that get_json returns the expected payload with a mocked
+        requests.get method."""
         with patch("utils.requests.get") as mock_get:
             mock_get.return_value = Mock()
             mock_get.return_value.json.return_value = test_payload
@@ -64,12 +65,12 @@ class TestMemoize(unittest.TestCase):
             """Test class with a method and a memoized property."""
 
             def a_method(self):
-                """Method to return 42."""
+                """Return 42."""
                 return 42
 
             @memoize
             def a_property(self):
-                """Memoized property that calls a_method."""
+                """A memoized property that calls a_method once and caches it."""
                 return self.a_method()
 
         test_obj = TestClass()
