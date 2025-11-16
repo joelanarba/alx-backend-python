@@ -1,56 +1,40 @@
 #!/usr/bin/env python3
-"""Serializers for messaging_app chats app"""
+"""API views for chats app"""
 
-from rest_framework import serializers
-from .models import User, Conversation, Message
-
-
-class UserSerializer(serializers.ModelSerializer):
-    """Serializer for User model"""
-
-    class Meta:
-        model = User
-        fields = [
-            "user_id",
-            "first_name",
-            "last_name",
-            "email",
-            "phone_number",
-            "role",
-            "created_at",
-        ]
-        read_only_fields = ["user_id", "created_at"]
+from rest_framework import viewsets, status, filters
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from .models import Conversation, Message
+from .serializers import ConversationSerializer, MessageSerializer
 
 
-class MessageSerializer(serializers.ModelSerializer):
-    """Serializer for Message model"""
+class ConversationViewSet(viewsets.ModelViewSet):
+    """ViewSet for listing and creating conversations"""
 
-    sender = UserSerializer(read_only=True)
+    queryset = Conversation.objects.all()
+    serializer_class = ConversationSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["participants__email"]
 
-    class Meta:
-        model = Message
-        fields = [
-            "message_id",
-            "sender",
-            "conversation",
-            "message_body",
-            "sent_at",
-        ]
-        read_only_fields = ["message_id", "sent_at"]
+    @action(detail=True, methods=["post"])
+    def add_message(self, request, pk=None):
+        """Send a message to this conversation"""
+        conversation = self.get_object()
+        serializer = MessageSerializer(
+            data={
+                **request.data,
+                "conversation": str(conversation.conversation_id)
+            }
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class ConversationSerializer(serializers.ModelSerializer):
-    """Serializer for Conversation model with nested messages and participants"""
+class MessageViewSet(viewsets.ModelViewSet):
+    """ViewSet for listing and creating messages"""
 
-    participants = UserSerializer(many=True, read_only=True)
-    messages = MessageSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Conversation
-        fields = [
-            "conversation_id",
-            "participants",
-            "messages",
-            "created_at",
-        ]
-        read_only_fields = ["conversation_id", "created_at"]
+    queryset = Message.objects.all()
+    serializer_class = MessageSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["sender__email", "message_body"]
