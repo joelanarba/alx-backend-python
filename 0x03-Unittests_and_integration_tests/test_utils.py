@@ -5,6 +5,9 @@ import unittest
 from parameterized import parameterized
 import sys
 import os
+from unittest.mock import patch, Mock
+from utils import get_json
+
 
 sys.path.insert(0, os.path.abspath(".."))
 
@@ -36,3 +39,28 @@ class TestAccessNestedMap(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+    
+class TestGetJson(unittest.TestCase):
+    """Test class for utils.get_json"""
+
+    @parameterized.expand([
+        ("http://example.com", {"payload": True}),
+        ("http://holberton.io", {"payload": False})
+    ])
+    def test_get_json(self, test_url, test_payload):
+        """Test that get_json returns the expected payload with mocked requests.get"""
+        # Patch 'requests.get' where it is used inside utils
+        with patch("utils.requests.get") as mock_get:
+            # Configure the mock to return a Mock object with .json() method
+            mock_get.return_value = Mock()
+            mock_get.return_value.json.return_value = test_payload
+
+            # Call the function
+            result = get_json(test_url)
+
+            # Test that requests.get was called exactly once with test_url
+            mock_get.assert_called_once_with(test_url)
+
+            # Test that the function output equals the payload
+            self.assertEqual(result, test_payload)
+
