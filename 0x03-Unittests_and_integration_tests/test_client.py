@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Unit tests for client.GithubOrgClient."""
+"""Unit and integration tests for client.GithubOrgClient."""
 
 import unittest
 from unittest.mock import patch, Mock
@@ -26,12 +26,10 @@ class TestGithubOrgClient(unittest.TestCase):
         self.assertEqual(result, {"login": org_name})
 
     def test_public_repos_url(self):
-        """Test GithubOrgClient._public_repos_url returns correct URL."""
+        """Test _public_repos_url returns correct URL."""
         client = GithubOrgClient("google")
         payload = {"repos_url": "https://api.github.com/orgs/google/repos"}
-        with patch.object(
-            GithubOrgClient, "org", new_callable=Mock
-        ) as mock_org:
+        with patch.object(GithubOrgClient, "org", new_callable=Mock) as mock_org:
             mock_org.return_value = payload
             result = client._public_repos_url
             self.assertEqual(
@@ -40,13 +38,11 @@ class TestGithubOrgClient(unittest.TestCase):
 
     @patch("client.get_json")
     def test_public_repos(self, mock_get_json):
-        """Test GithubOrgClient.public_repos returns correct repo list."""
+        """Test public_repos returns correct repo list."""
         payload = [{"name": "repo1"}, {"name": "repo2"}]
         mock_get_json.return_value = payload
         client = GithubOrgClient("google")
-        with patch.object(
-            GithubOrgClient, "_public_repos_url", new_callable=Mock
-        ) as mock_url:
+        with patch.object(GithubOrgClient, "_public_repos_url", new_callable=Mock) as mock_url:
             mock_url.return_value = "mocked_url"
             result = client.public_repos()
             self.assertEqual(result, ["repo1", "repo2"])
@@ -58,7 +54,7 @@ class TestGithubOrgClient(unittest.TestCase):
         ({"license": {"key": "other_license"}}, "my_license", False)
     ])
     def test_has_license(self, repo, license_key, expected):
-        """Test GithubOrgClient.has_license returns True if license matches."""
+        """Test has_license returns True if license matches."""
         client = GithubOrgClient("google")
         result = client.has_license(repo, license_key)
         self.assertEqual(result, expected)
@@ -80,7 +76,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        """Set up patcher for requests.get."""
+        """Patch requests.get to simulate API responses."""
         cls.get_patcher = patch("client.requests.get")
         cls.mock_get = cls.get_patcher.start()
 
@@ -97,7 +93,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        """Stop patcher for requests.get."""
+        """Stop the requests.get patcher."""
         cls.get_patcher.stop()
 
     def test_public_repos(self):
