@@ -22,5 +22,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", include("chats.urls")),  # include chats API urls
+    path("api/", include("chats.urls")),  # this adds the /api/ prefix
 ]
+
