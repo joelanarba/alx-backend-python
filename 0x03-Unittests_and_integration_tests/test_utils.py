@@ -7,6 +7,7 @@ import unittest
 from unittest.mock import patch, Mock
 from parameterized import parameterized
 
+# Add parent folder to path before importing local modules
 sys.path.insert(0, os.path.abspath(".."))
 
 from utils import access_nested_map, get_json, memoize
@@ -43,7 +44,7 @@ class TestGetJson(unittest.TestCase):
         ("http://holberton.io", {"payload": False})
     ])
     def test_get_json(self, test_url, test_payload):
-        """Test that get_json returns the expected payload with mocked requests.get."""
+        """Test that get_json returns the expected payload with a mocked get."""
         with patch("utils.requests.get") as mock_get:
             mock_get.return_value = Mock()
             mock_get.return_value.json.return_value = test_payload
