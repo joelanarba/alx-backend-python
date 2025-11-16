@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Unit tests for utils.access_nested_map, get_json, and memoize."""
-
 import sys
 import os
 import unittest
@@ -10,12 +9,12 @@ from parameterized import parameterized
 # Add parent folder to path
 sys.path.insert(0, os.path.abspath(".."))
 
-from utils import access_nested_map, get_json, memoize
+# Import after path modification (with noqa to suppress E402)
+from utils import access_nested_map, get_json, memoize  # noqa: E402
 
 
 class TestAccessNestedMap(unittest.TestCase):
     """Test class for utils.access_nested_map."""
-
     @parameterized.expand([
         ({"a": 1}, ("a",), 1),
         ({"a": {"b": 2}}, ("a",), {"b": 2}),
@@ -38,7 +37,6 @@ class TestAccessNestedMap(unittest.TestCase):
 
 class TestGetJson(unittest.TestCase):
     """Test class for utils.get_json."""
-
     @parameterized.expand([
         ("http://example.com", {"payload": True}),
         ("http://holberton.io", {"payload": False})
@@ -49,7 +47,6 @@ class TestGetJson(unittest.TestCase):
         with patch("utils.requests.get") as mock_get:
             mock_get.return_value = Mock()
             mock_get.return_value.json.return_value = test_payload
-
             result = get_json(test_url)
             mock_get.assert_called_once_with(test_url)
             self.assertEqual(result, test_payload)
@@ -57,28 +54,26 @@ class TestGetJson(unittest.TestCase):
 
 class TestMemoize(unittest.TestCase):
     """Test class for utils.memoize decorator."""
-
     def test_memoize(self):
         """Test that a memoized property calls the method only once."""
-
         class TestClass:
             """Test class with a method and a memoized property."""
-
             def a_method(self):
                 """Return 42."""
                 return 42
 
             @memoize
             def a_property(self):
-                """A memoized property that calls a_method once and caches it."""
+                """A memoized property that calls a_method once and
+                caches it."""
                 return self.a_method()
 
         test_obj = TestClass()
-
-        with patch.object(TestClass, "a_method", return_value=42) as mock_method:
+        with patch.object(
+            TestClass, "a_method", return_value=42
+        ) as mock_method:
             result1 = test_obj.a_property
             result2 = test_obj.a_property
-
             self.assertEqual(result1, 42)
             self.assertEqual(result2, 42)
             mock_method.assert_called_once()
