@@ -7,6 +7,9 @@ import sys
 import os
 from unittest.mock import patch, Mock
 from utils import get_json
+from unittest.mock import patch
+from utils import memoize
+
 
 
 sys.path.insert(0, os.path.abspath(".."))
@@ -63,4 +66,38 @@ class TestGetJson(unittest.TestCase):
 
             # Test that the function output equals the payload
             self.assertEqual(result, test_payload)
+
+class TestMemoize(unittest.TestCase):
+    """Test class for utils.memoize decorator"""
+
+    def test_memoize(self):
+        """Test that a memoized property calls the method only once"""
+
+        class TestClass:
+            """Test class with a method and a memoized property"""
+
+            def a_method(self):
+                """Method to return 42"""
+                return 42
+
+            @memoize
+            def a_property(self):
+                """Memoized property that calls a_method"""
+                return self.a_method()
+
+        # Create instance
+        test_obj = TestClass()
+
+        # Patch a_method
+        with patch.object(TestClass, "a_method", return_value=42) as mock_method:
+            # Call the memoized property twice
+            result1 = test_obj.a_property
+            result2 = test_obj.a_property
+
+            # Check the returned values
+            self.assertEqual(result1, 42)
+            self.assertEqual(result2, 42)
+
+            # Ensure a_method was called only once
+            mock_method.assert_called_once()
 
