@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Apply Blue Deployment
+kubectl apply -f blue_deployment.yaml
+
+# Apply Green Deployment
+kubectl apply -f green_deployment.yaml
+
+# Apply Service (initially pointing to blue or update to green if intended to switch)
+kubectl apply -f kubeservice.yaml
+
+# Check logs for the new version (Green)
+echo "Checking logs for Green deployment..."
+kubectl logs -l version=green
