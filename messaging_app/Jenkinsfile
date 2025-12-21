@@ -1,5 +1,11 @@
 pipeline {
     agent any
+    
+    environment {
+        // Change this to your Docker Hub username and repo
+        DOCKER_IMAGE = 'your_dockerhub_username/messaging_app' 
+        DOCKER_CREDENTIALS_ID = 'docker-hub-credentials'
+    }
 
     stages {
         stage('Checkout') {
@@ -17,10 +23,30 @@ pipeline {
                 sh 'pytest --junitxml=test-reports/results.xml'
             }
         }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    dockerImage = docker.build("${DOCKER_IMAGE}:${env.BUILD_NUMBER}")
+                }
+            }
+        }
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry('', DOCKER_CREDENTIALS_ID) {
+                        dockerImage.push()
+                        dockerImage.push('latest')
+                    }
+                }
+            }
+        }
     }
     post {
         always {
             junit 'test-reports/results.xml'
+        }
+        success {
+            sh "docker rmi ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
         }
     }
 }
