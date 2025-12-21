@@ -1,3 +1,6 @@
 Django>=5.2.8
 djangorestframework
 mysqlclient
+pytest
+flake8
+coverage
