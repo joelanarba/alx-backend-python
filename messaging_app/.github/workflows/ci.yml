@@ -37,4 +37,16 @@ jobs:
         MYSQL_HOST: 127.0.0.1
         MYSQL_PORT: 3306
       run: |
-        pytest
+        coverage run -m pytest
+        coverage report
+        coverage xml
+
+    - name: Lint with flake8
+      run: |
+        flake8 . --count --show-source --statistics
+
+    - name: Upload Coverage Report
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: coverage.xml
